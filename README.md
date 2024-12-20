@@ -23,11 +23,11 @@ npm run dev
 
 **Time Limit**
 
-Solutions should be submitted within a week of receiving the challenge. We expect the challenge to take at most two
-hours of your time. We understand that everyone has varying levels of free time and we'd rather you take the time and
-produce a solution up to your ability than rush and turn in a suboptimal challenge. If you require more time, please
-reach out to us. Look through the requirements below and let us know when you will have something for us to look at.
-If anything is unclear, don't hesitate to reach out.
+Solutions should be submitted within a week of receiving the challenge. We expect the challenge to take around two
+hours of your time, but you may spend as long as you need to create a robust solution. We understand that everyone has 
+varying levels of free time, and we'd rather you take the time and produce a solution up to your ability than rush and 
+turn in a suboptimal challenge. If you require more time, please reach out to us. Look through the requirements below 
+and let us know when you will have something for us to look at. If anything is unclear, don't hesitate to reach out.
 
 **Requirements**
 
@@ -50,6 +50,12 @@ it better! Your solution can only gain from having a better foundation.
     -   While jumping, the skier should be able to jump over some obstacles:
         -   Rocks can be jumped over
         -   Trees can NOT be jumped over
+
+-   **Future Considerations**
+
+    All products evolve over time. In the future, our game will have many more obstacles to crash into or interact with.
+    Some of them may be animated as well, we're just waiting for our design department to provide the assets. Please
+    make sure your code is written in a way that will make it easy to add these future features.
 
 -   **Documentation:**
 
