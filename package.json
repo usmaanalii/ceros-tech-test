@@ -8,7 +8,9 @@
         "build": "webpack --mode production",
         "test": "jest",
         "start": "node server.js",
-        "prettier": "prettier --write ."
+        "prettier": "prettier --write .",
+        "predeploy": "npm run build",
+        "deploy": "gh-pages -d dist"
     },
     "repository": {
         "type": "git",
@@ -28,6 +30,7 @@
         "babel-loader": "^9.1.0",
         "copy-webpack-plugin": "^11.0.0",
         "css-loader": "^6.7.2",
+        "gh-pages": "^6.2.0",
         "html-webpack-plugin": "^5.5.0",
         "jest": "^29.3.1",
         "jest-environment-jsdom": "^29.3.1",
