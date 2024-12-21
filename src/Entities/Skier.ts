@@ -351,8 +351,8 @@ export class Skier extends Entity {
 
     jump() {
         this.setState(STATES.STATE_JUMPING);
-        this.move();
         this.setAnimation(STATES.STATE_JUMPING);
+        this.move();
     }
 
     /**
@@ -398,20 +398,12 @@ export class Skier extends Entity {
             return;
         }
 
-        if (collisionObstacle.imageName === OBSTACLE_TYPES[4]) {
+        if (OBSTACLE_TYPES[collisionObstacle.imageName].canBeSkiiedOver) {
             this.jump();
-        } else if (
-            collisionObstacle.imageName === OBSTACLE_TYPES[1] ||
-            collisionObstacle.imageName === OBSTACLE_TYPES[2]
-        ) {
+        } else if (OBSTACLE_TYPES[collisionObstacle.imageName].canBeJumpedOver) {
+            this.isSkiing() ?? this.crash();
+        } else {
             this.crash();
-        } else if (
-            collisionObstacle.imageName === OBSTACLE_TYPES[3] ||
-            collisionObstacle.imageName === OBSTACLE_TYPES[4]
-        ) {
-            if (this.isSkiing()) {
-                this.crash();
-            }
         }
     }
 
