@@ -3,18 +3,20 @@
  * angles, and crashes into obstacles they run into. If caught by the rhino, the skier will get eaten and die.
  */
 
-import { IMAGE_NAMES, DIAGONAL_SPEED_REDUCER, KEYS } from "../Constants";
+import { IMAGE_NAMES, DIAGONAL_SPEED_REDUCER, KEYS, ANIMATION_FRAME_SPEED_MS } from "../Constants";
 import { Entity } from "./Entity";
 import { Canvas } from "../Core/Canvas";
 import { ImageManager } from "../Core/ImageManager";
 import { intersectTwoRects, Rect } from "../Core/Utils";
 import { ObstacleManager } from "./Obstacles/ObstacleManager";
 import { Obstacle } from "./Obstacles/Obstacle";
+import { Animation } from "../Core/Animations/Animation";
+import { AnimationManager } from "../Core/Animations/AnimationManager";
 
 /**
  * The skier starts running at this speed. Saved in case speed needs to be reset at any point.
  */
-const STARTING_SPEED: number = 10;
+const STARTING_SPEED: number = 6;
 
 /**
  * The different states the skier can be in.
@@ -24,6 +26,7 @@ enum STATES {
     STATE_SKIING = "skiing",
     STATE_CRASHED = "crashed",
     STATE_DEAD = "dead",
+    STATE_JUMPING = "jumping",
 }
 
 /**
@@ -45,6 +48,13 @@ const DIRECTION_IMAGES: { [key: number]: IMAGE_NAMES } = {
     [DIRECTION_RIGHT_DOWN]: IMAGE_NAMES.SKIER_RIGHTDOWN,
     [DIRECTION_RIGHT]: IMAGE_NAMES.SKIER_RIGHT,
 };
+
+const IMAGES_JUMPING: IMAGE_NAMES[] = [
+    IMAGE_NAMES.SKIER_JUMP1,
+    IMAGE_NAMES.SKIER_JUMP2,
+    IMAGE_NAMES.SKIER_JUMP3,
+    IMAGE_NAMES.SKIER_JUMP4,
+];
 
 export class Skier extends Entity {
     /**
@@ -72,6 +82,8 @@ export class Skier extends Entity {
      */
     obstacleManager: ObstacleManager;
 
+    animationManager: AnimationManager;
+
     /**
      * Init the skier.
      */
@@ -79,6 +91,13 @@ export class Skier extends Entity {
         super(x, y, imageManager, canvas);
 
         this.obstacleManager = obstacleManager;
+
+        this.animationManager = new AnimationManager((imageName) => {
+            this.imageName = imageName;
+        });
+
+        this.setupAnimations();
+        this.setAnimation(this.state);
     }
 
     /**
@@ -95,6 +114,10 @@ export class Skier extends Entity {
         return this.state === STATES.STATE_SKIING;
     }
 
+    isJumping(): boolean {
+        return this.state === STATES.STATE_JUMPING;
+    }
+
     /**
      * Is the skier currently in the dead state
      */
@@ -107,7 +130,10 @@ export class Skier extends Entity {
      */
     setDirection(direction: number) {
         this.direction = direction;
-        this.setDirectionalImage();
+
+        if (this.state === STATES.STATE_SKIING) {
+            this.setDirectionalImage();
+        }
     }
 
     /**
@@ -120,11 +146,13 @@ export class Skier extends Entity {
     /**
      * Move the skier and check to see if they've hit an obstacle. The skier only moves in the skiing state.
      */
-    update() {
-        if (this.isSkiing()) {
+    update(gameTime: number) {
+        if (this.isSkiing() || this.isJumping()) {
             this.move();
             this.checkIfHitObstacle();
         }
+
+        this.animate(gameTime);
     }
 
     /**
@@ -231,6 +259,9 @@ export class Skier extends Entity {
             case KEYS.DOWN:
                 this.turnDown();
                 break;
+            case KEYS.SPACE:
+                this.jump();
+                break;
             default:
                 handled = false;
         }
@@ -296,6 +327,11 @@ export class Skier extends Entity {
         this.setDirection(DIRECTION_DOWN);
     }
 
+    jump() {
+        this.state = STATES.STATE_JUMPING;
+        this.setAnimation(STATES.STATE_JUMPING);
+    }
+
     /**
      * The skier has a bit different bounds calculating than a normal entity to make the collision with obstacles more
      * natural. We want te skier to end up in the obstacle rather than right above it when crashed, so move the bottom
@@ -356,6 +392,25 @@ export class Skier extends Entity {
         this.state = STATES.STATE_SKIING;
         this.speed = STARTING_SPEED;
         this.setDirection(newDirection);
+    }
+
+    setupAnimations() {
+        const animations = {
+            [STATES.STATE_JUMPING]: new Animation(IMAGES_JUMPING, false, () => {
+                this.state = STATES.STATE_SKIING;
+                this.setDirectionalImage();
+            }),
+        };
+        this.animationManager.setupAnimations(animations);
+    }
+
+    setAnimation(state: STATES) {
+        this.state = state;
+        this.animationManager.setAnimation(state);
+    }
+
+    animate(gameTime: number) {
+        this.animationManager.animate(gameTime, ANIMATION_FRAME_SPEED_MS);
     }
 
     /**

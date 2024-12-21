@@ -14,7 +14,7 @@ import { AnimationManager } from "../Core/Animations/AnimationManager";
 /**
  * The rhino starts running at this speed. Saved in case speed needs to be reset at any point.
  */
-const STARTING_SPEED: number = 10.5;
+const STARTING_SPEED: number = 4;
 
 /**
  * The different states the rhino can be in.
@@ -52,11 +52,6 @@ export class Rhino extends Entity {
      * How fast the rhino is currently moving in the game world.
      */
     speed: number = STARTING_SPEED;
-
-    /**
-     * Stores all of the animations available for the different states of the rhino.
-     */
-    animations: { [key: string]: Animation } = {};
 
     /**
      * The animation that the rhino is currently using. Typically matches the state the rhino is in.
@@ -148,38 +143,6 @@ export class Rhino extends Entity {
      */
     animate(gameTime: number) {
         this.animationManager.animate(gameTime, ANIMATION_FRAME_SPEED_MS);
-    }
-
-    /**
-     * Increase the current animation frame and update the image based upon the sequence of images for the animation.
-     * If the animation isn't looping, then finish the animation instead.
-     */
-    nextAnimationFrame(gameTime: number) {
-        if (!this.curAnimation) {
-            return;
-        }
-
-        const animationImages = this.curAnimation.getImages();
-
-        this.curAnimationFrameTime = gameTime;
-        this.curAnimationFrame++;
-        if (this.curAnimationFrame >= animationImages.length) {
-            if (!this.curAnimation.getLooping()) {
-                this.finishAnimation();
-                return;
-            }
-
-            this.curAnimationFrame = 0;
-        }
-
-        this.imageName = animationImages[this.curAnimationFrame];
-    }
-
-    /**
-     * The current animation wasn't looping, so finish it by clearing out the current animation and firing the callback.
-     */
-    finishAnimation() {
-        this.animationManager.finishAnimation();
     }
 
     /**

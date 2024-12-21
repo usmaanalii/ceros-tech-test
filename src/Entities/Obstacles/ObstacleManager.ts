@@ -12,7 +12,7 @@ import { Obstacle } from "./Obstacle";
 /**
  * Ensures that obstacles aren't too close together
  */
-const DISTANCE_BETWEEN_OBSTACLES: number = 50;
+const DISTANCE_BETWEEN_OBSTACLES: number = 100;
 
 /**
  * Distance away from the starting position to place obstacles so the player has some initial room to move
@@ -23,12 +23,12 @@ const STARTING_OBSTACLE_GAP: number = 100;
  * The number of starting obstacles is based upon game size, so that difficulty stays the same regardless of screen size.
  * This works to configure the starting number of obstacles.
  */
-const STARTING_OBSTACLE_REDUCER: number = 300;
+const STARTING_OBSTACLE_REDUCER: number = 3000;
 
 /**
  * The chance that a new obstacle will be placed as the skier is moving. A lower number increases the chances.
  */
-const NEW_OBSTACLE_CHANCE: number = 8;
+const NEW_OBSTACLE_CHANCE: number = 50;
 
 export class ObstacleManager {
     /**
