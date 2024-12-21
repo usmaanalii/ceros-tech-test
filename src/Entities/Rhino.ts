@@ -14,7 +14,7 @@ import { AnimationManager } from "../Core/Animations/AnimationManager";
 /**
  * The rhino starts running at this speed. Saved in case speed needs to be reset at any point.
  */
-const STARTING_SPEED: number = 4;
+const STARTING_SPEED: number = 1;
 
 /**
  * The different states the rhino can be in.

@@ -9,7 +9,7 @@ import { Canvas } from "../Core/Canvas";
 import { ImageManager } from "../Core/ImageManager";
 import { intersectTwoRects, Rect } from "../Core/Utils";
 import { ObstacleManager } from "./Obstacles/ObstacleManager";
-import { Obstacle } from "./Obstacles/Obstacle";
+import { Obstacle, OBSTACLE_TYPES } from "./Obstacles/Obstacle";
 import { Animation } from "../Core/Animations/Animation";
 import { AnimationManager } from "../Core/Animations/AnimationManager";
 
@@ -351,6 +351,7 @@ export class Skier extends Entity {
 
     jump() {
         this.setState(STATES.STATE_JUMPING);
+        this.move();
         this.setAnimation(STATES.STATE_JUMPING);
     }
 
@@ -382,17 +383,35 @@ export class Skier extends Entity {
             return;
         }
 
-        const collision = this.obstacleManager.getObstacles().find((obstacle: Obstacle): boolean => {
+        const collisionObstacle = this.obstacleManager.getObstacles().find((obstacle: Obstacle): Obstacle | null => {
             const obstacleBounds = obstacle.getBounds();
             if (!obstacleBounds) {
-                return false;
+                return null;
             }
 
-            return intersectTwoRects(skierBounds, obstacleBounds);
+            const didCollide = intersectTwoRects(skierBounds, obstacleBounds);
+
+            return didCollide ? obstacle : null;
         });
 
-        if (collision) {
+        if (!collisionObstacle) {
+            return;
+        }
+
+        if (collisionObstacle.imageName === OBSTACLE_TYPES[4]) {
+            this.jump();
+        } else if (
+            collisionObstacle.imageName === OBSTACLE_TYPES[1] ||
+            collisionObstacle.imageName === OBSTACLE_TYPES[2]
+        ) {
             this.crash();
+        } else if (
+            collisionObstacle.imageName === OBSTACLE_TYPES[3] ||
+            collisionObstacle.imageName === OBSTACLE_TYPES[4]
+        ) {
+            if (this.isSkiing()) {
+                this.crash();
+            }
         }
     }
 
