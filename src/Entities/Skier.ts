@@ -280,7 +280,9 @@ export class Skier extends Entity {
                 this.turnDown();
                 break;
             case KEYS.SPACE:
-                this.jump();
+                if (!this.isJumping()) {
+                    this.jump();
+                }
                 break;
             default:
                 handled = false;
