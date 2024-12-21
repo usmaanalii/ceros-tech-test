@@ -53,21 +53,6 @@ export class Rhino extends Entity {
      */
     speed: number = STARTING_SPEED;
 
-    /**
-     * The animation that the rhino is currently using. Typically matches the state the rhino is in.
-     */
-    curAnimation: Animation | null = null;
-
-    /**
-     * The current frame of the current animation the rhino is on.
-     */
-    curAnimationFrame: number = 0;
-
-    /**
-     * The time in ms of the last frame change. Used to provide a consistent framerate.
-     */
-    curAnimationFrameTime: number = Date.now();
-
     animationManager: AnimationManager;
 
     /**
@@ -139,13 +124,6 @@ export class Rhino extends Entity {
     }
 
     /**
-     * Advance to the next frame in the current animation if enough time has elapsed since the previous frame.
-     */
-    animate(gameTime: number) {
-        this.animationManager.animate(gameTime, ANIMATION_FRAME_SPEED_MS);
-    }
-
-    /**
      * Does the rhino collide with its target. If so, trigger the target as caught.
      */
     checkIfCaughtTarget(target: Entity) {
@@ -174,6 +152,13 @@ export class Rhino extends Entity {
      */
     celebrate() {
         this.setState(STATES.STATE_CELEBRATING);
+    }
+
+    /**
+     * Advance to the next frame in the current animation if enough time has elapsed since the previous frame.
+     */
+    animate(gameTime: number) {
+        this.animationManager.animate(gameTime, ANIMATION_FRAME_SPEED_MS);
     }
 
     /**

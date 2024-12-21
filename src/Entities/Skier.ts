@@ -100,6 +100,23 @@ export class Skier extends Entity {
         this.setAnimation(this.state);
     }
 
+    setupAnimations() {
+        const animations = {
+            [STATES.STATE_JUMPING]: new Animation(IMAGES_JUMPING, false, () => {
+                this.state = STATES.STATE_SKIING;
+                this.setDirectionalImage();
+            }),
+        };
+        this.animationManager.setupAnimations(animations);
+    }
+
+    /**
+     * Set the state and then set a new current animation based upon that state.
+     */
+    setState(newState: STATES) {
+        this.state = newState;
+    }
+
     /**
      * Is the skier currently in the crashed state
      */
@@ -114,6 +131,9 @@ export class Skier extends Entity {
         return this.state === STATES.STATE_SKIING;
     }
 
+    /**
+     * Is the skier currently in the jumping state
+     */
     isJumping(): boolean {
         return this.state === STATES.STATE_JUMPING;
     }
@@ -137,13 +157,6 @@ export class Skier extends Entity {
     }
 
     /**
-     * Set the skier's image based upon the direction they're facing.
-     */
-    setDirectionalImage() {
-        this.imageName = DIRECTION_IMAGES[this.direction];
-    }
-
-    /**
      * Move the skier and check to see if they've hit an obstacle. The skier only moves in the skiing state.
      */
     update(gameTime: number) {
@@ -153,17 +166,6 @@ export class Skier extends Entity {
         }
 
         this.animate(gameTime);
-    }
-
-    /**
-     * Draw the skier if they aren't dead
-     */
-    draw() {
-        if (this.isDead()) {
-            return;
-        }
-
-        super.draw();
     }
 
     /**
@@ -185,6 +187,24 @@ export class Skier extends Entity {
                 // Specifically calling out that we don't move the skier each frame if they're facing completely horizontal.
                 break;
         }
+    }
+
+    /**
+     * Set the skier's image based upon the direction they're facing.
+     */
+    setDirectionalImage() {
+        this.imageName = DIRECTION_IMAGES[this.direction];
+    }
+
+    /**
+     * Draw the skier if they aren't dead
+     */
+    draw() {
+        if (this.isDead()) {
+            return;
+        }
+
+        super.draw();
     }
 
     /**
@@ -328,7 +348,7 @@ export class Skier extends Entity {
     }
 
     jump() {
-        this.state = STATES.STATE_JUMPING;
+        this.setState(STATES.STATE_JUMPING);
         this.setAnimation(STATES.STATE_JUMPING);
     }
 
@@ -379,7 +399,7 @@ export class Skier extends Entity {
      * image.
      */
     crash() {
-        this.state = STATES.STATE_CRASHED;
+        this.setState(STATES.STATE_CRASHED);
         this.speed = 0;
         this.imageName = IMAGE_NAMES.SKIER_CRASH;
     }
@@ -389,35 +409,25 @@ export class Skier extends Entity {
      * whichever direction they're recovering to.
      */
     recoverFromCrash(newDirection: number) {
-        this.state = STATES.STATE_SKIING;
+        this.setState(STATES.STATE_SKIING);
         this.speed = STARTING_SPEED;
         this.setDirection(newDirection);
-    }
-
-    setupAnimations() {
-        const animations = {
-            [STATES.STATE_JUMPING]: new Animation(IMAGES_JUMPING, false, () => {
-                this.state = STATES.STATE_SKIING;
-                this.setDirectionalImage();
-            }),
-        };
-        this.animationManager.setupAnimations(animations);
-    }
-
-    setAnimation(state: STATES) {
-        this.state = state;
-        this.animationManager.setAnimation(state);
     }
 
     animate(gameTime: number) {
         this.animationManager.animate(gameTime, ANIMATION_FRAME_SPEED_MS);
     }
 
+    setAnimation(state: STATES) {
+        this.setState(state);
+        this.animationManager.setAnimation(state);
+    }
+
     /**
      * Kill the skier by putting them into the "dead" state and stopping their movement.
      */
     die() {
-        this.state = STATES.STATE_DEAD;
+        this.setState(STATES.STATE_DEAD);
         this.speed = 0;
     }
 }
