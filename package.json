@@ -9,7 +9,6 @@
         "test": "jest",
         "start": "node server.js",
         "prettier": "prettier --write .",
-        "predeploy": "npm run build",
         "deploy": "gh-pages -d dist"
     },
     "repository": {

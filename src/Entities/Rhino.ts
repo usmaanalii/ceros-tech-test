@@ -5,10 +5,11 @@
 
 import { ANIMATION_FRAME_SPEED_MS, IMAGE_NAMES } from "../Constants";
 import { Entity } from "./Entity";
-import { Animation } from "../Core/Animation";
+import { Animation } from "../Core/Animations/Animation";
 import { Canvas } from "../Core/Canvas";
 import { ImageManager } from "../Core/ImageManager";
 import { intersectTwoRects, getDirectionVector } from "../Core/Utils";
+import { AnimationManager } from "../Core/Animations/AnimationManager";
 
 /**
  * The rhino starts running at this speed. Saved in case speed needs to be reset at any point.
@@ -52,25 +53,7 @@ export class Rhino extends Entity {
      */
     speed: number = STARTING_SPEED;
 
-    /**
-     * Stores all of the animations available for the different states of the rhino.
-     */
-    animations: { [key: string]: Animation } = {};
-
-    /**
-     * The animation that the rhino is currently using. Typically matches the state the rhino is in.
-     */
-    curAnimation: Animation | null = null;
-
-    /**
-     * The current frame of the current animation the rhino is on.
-     */
-    curAnimationFrame: number = 0;
-
-    /**
-     * The time in ms of the last frame change. Used to provide a consistent framerate.
-     */
-    curAnimationFrameTime: number = Date.now();
+    animationManager: AnimationManager;
 
     /**
      * Initialize the rhino, get the animations setup and set the starting animation which will be based upon the
@@ -78,19 +61,21 @@ export class Rhino extends Entity {
      */
     constructor(x: number, y: number, imageManager: ImageManager, canvas: Canvas) {
         super(x, y, imageManager, canvas);
+        this.animationManager = new AnimationManager();
         this.setupAnimations();
-        this.setAnimation();
+        this.setAnimation(this.state);
     }
 
     /**
      * Create and store the animations.
      */
     setupAnimations() {
-        this.animations[STATES.STATE_RUNNING] = new Animation(IMAGES_RUNNING, true);
-
-        this.animations[STATES.STATE_EATING] = new Animation(IMAGES_EATING, false, this.celebrate.bind(this));
-
-        this.animations[STATES.STATE_CELEBRATING] = new Animation(IMAGES_CELEBRATING, true);
+        const animations = {
+            [STATES.STATE_RUNNING]: new Animation(IMAGES_RUNNING, true),
+            [STATES.STATE_EATING]: new Animation(IMAGES_EATING, false),
+            [STATES.STATE_CELEBRATING]: new Animation(IMAGES_CELEBRATING, true),
+        };
+        this.animationManager.setupAnimations(animations);
     }
 
     /**
@@ -98,7 +83,6 @@ export class Rhino extends Entity {
      */
     setState(newState: STATES) {
         this.state = newState;
-        this.setAnimation();
     }
 
     /**
@@ -138,60 +122,6 @@ export class Rhino extends Entity {
     }
 
     /**
-     * Advance to the next frame in the current animation if enough time has elapsed since the previous frame.
-     */
-    animate(gameTime: number) {
-        if (!this.curAnimation) {
-            return;
-        }
-
-        if (gameTime - this.curAnimationFrameTime > ANIMATION_FRAME_SPEED_MS) {
-            this.nextAnimationFrame(gameTime);
-        }
-    }
-
-    /**
-     * Increase the current animation frame and update the image based upon the sequence of images for the animation.
-     * If the animation isn't looping, then finish the animation instead.
-     */
-    nextAnimationFrame(gameTime: number) {
-        if (!this.curAnimation) {
-            return;
-        }
-
-        const animationImages = this.curAnimation.getImages();
-
-        this.curAnimationFrameTime = gameTime;
-        this.curAnimationFrame++;
-        if (this.curAnimationFrame >= animationImages.length) {
-            if (!this.curAnimation.getLooping()) {
-                this.finishAnimation();
-                return;
-            }
-
-            this.curAnimationFrame = 0;
-        }
-
-        this.imageName = animationImages[this.curAnimationFrame];
-    }
-
-    /**
-     * The current animation wasn't looping, so finish it by clearing out the current animation and firing the callback.
-     */
-    finishAnimation() {
-        if (!this.curAnimation) {
-            return;
-        }
-
-        const animationCallback = this.curAnimation.getCallback();
-        this.curAnimation = null;
-
-        if (animationCallback) {
-            animationCallback.apply(null);
-        }
-    }
-
-    /**
      * Does the rhino collide with its target. If so, trigger the target as caught.
      */
     checkIfCaughtTarget(target: Entity) {
@@ -223,18 +153,20 @@ export class Rhino extends Entity {
     }
 
     /**
-     * Set the current animation, reset to the beginning of the animation and set the proper image to display.
+     * Animate the rhino. This is done by calling the animation manager to animate the skier.
+     * Here we pass in the current game time and the frame speed for the animation, and a callback to set the image
+     * based upon the current frame of the animation.
      */
-    setAnimation() {
-        this.curAnimation = this.animations[this.state];
-        if (!this.curAnimation) {
-            return;
-        }
+    animate(gameTime: number) {
+        this.animationManager.animate(gameTime, ANIMATION_FRAME_SPEED_MS, (imageName) => (this.imageName = imageName));
+    }
 
-        this.curAnimationFrame = 0;
-
-        const animateImages = this.curAnimation.getImages();
-        this.imageName = animateImages[this.curAnimationFrame];
+    /**
+     * Set the current animation for the rhino based upon the state they're in.
+     */
+    setAnimation(state: STATES) {
+        this.setState(state);
+        this.animationManager.setAnimation(state);
     }
 
     /**

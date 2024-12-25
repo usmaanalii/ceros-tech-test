@@ -3,7 +3,7 @@
  * to the start when the full animation sequence has been played or they can not loop and just finish on the last image.
  * They can also have a callback set to fire when the animation sequence is complete.
  */
-import { IMAGE_NAMES } from "../Constants";
+import { IMAGE_NAMES } from "../../Constants";
 
 export class Animation {
     /**

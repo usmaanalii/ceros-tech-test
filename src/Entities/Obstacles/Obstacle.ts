@@ -8,14 +8,19 @@ import { ImageManager } from "../../Core/ImageManager";
 import { randomInt } from "../../Core/Utils";
 import { Entity } from "../Entity";
 
+interface ObstacleType {
+    imageName: IMAGE_NAMES;
+}
+
 /**
  * The different types of obstacles that can be placed in the game.
  */
-const OBSTACLE_TYPES: IMAGE_NAMES[] = [
-    IMAGE_NAMES.TREE,
-    IMAGE_NAMES.TREE_CLUSTER,
-    IMAGE_NAMES.ROCK1,
-    IMAGE_NAMES.ROCK2,
+export const OBSTACLE_TYPES: ObstacleType[] = [
+    { imageName: IMAGE_NAMES.JUMP_RAMP },
+    { imageName: IMAGE_NAMES.TREE },
+    { imageName: IMAGE_NAMES.TREE_CLUSTER },
+    { imageName: IMAGE_NAMES.ROCK1 },
+    { imageName: IMAGE_NAMES.ROCK2 },
 ];
 
 export class Obstacle extends Entity {
@@ -31,7 +36,8 @@ export class Obstacle extends Entity {
         super(x, y, imageManager, canvas);
 
         const typeIdx = randomInt(0, OBSTACLE_TYPES.length - 1);
-        this.imageName = OBSTACLE_TYPES[typeIdx];
+        const obstacleType = OBSTACLE_TYPES[typeIdx];
+        this.imageName = obstacleType.imageName;
     }
 
     /**
